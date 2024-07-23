@@ -186,6 +186,8 @@ void resetBoard(S_BOARD* pos) {
 	pos->castlePerm = 0;
 
 	pos->posKey = 0ULL;
+
+	InitHashTable(pos->PvTable, 2);
 }
 
 void printBoard(const S_BOARD* pos) {

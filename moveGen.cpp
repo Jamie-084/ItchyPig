@@ -221,10 +221,10 @@ void generateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 
 			if(pos->enPas != SQUARE_NONE) {
 				if(sq + 9 == pos->enPas) {
-					AddEnPassantMove(pos, MOVE(sq,sq + 9,EMPTY,EMPTY,PAWNSTART_F), list);
+					AddEnPassantMove(pos, MOVE(sq,sq + 9,EMPTY,EMPTY,ENPASSANT_F), list);
 				}
 				if(sq + 11 == pos->enPas) {
-					AddEnPassantMove(pos, MOVE(sq,sq + 11,EMPTY,EMPTY,PAWNSTART_F), list);
+					AddEnPassantMove(pos, MOVE(sq,sq + 11,EMPTY,EMPTY,ENPASSANT_F), list);
 				} ////////////////////// AddCaptureMove
 			}
 		}
@@ -268,10 +268,10 @@ void generateAllMoves(const S_BOARD *pos, S_MOVELIST *list) {
 			}
 			if(pos->enPas != SQUARE_NONE) {
 				if(sq - 9 == pos->enPas) {
-					AddEnPassantMove(pos, MOVE(sq,sq - 9,EMPTY,EMPTY,PAWNSTART_F), list);
+					AddEnPassantMove(pos, MOVE(sq,sq - 9,EMPTY,EMPTY,ENPASSANT_F), list);
 				}
 				if(sq - 11 == pos->enPas) {
-					AddEnPassantMove(pos, MOVE(sq,sq - 11,EMPTY,EMPTY,PAWNSTART_F), list);
+					AddEnPassantMove(pos, MOVE(sq,sq - 11,EMPTY,EMPTY,ENPASSANT_F), list);
 				}
 			}
 		}

@@ -11,4 +11,7 @@ all:
 	moveGen.cpp \
 	validate.cpp \
 	makeMove.cpp \
+	perft.cpp \
+	search.cpp \
+	pvTable.cpp \
 	-o pig

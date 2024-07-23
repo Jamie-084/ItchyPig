@@ -25,7 +25,10 @@ typedef unsigned long long u64; // 64-bit unsigned integer
 #define BOARD_ARRAY_SIZE 120
 #define MAX_GAME_MOVES 2048
 #define MAX_POSITION_MOVES 256
+#define MAX_DEPTH 64
 #define START_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+
+#define NO_MOVE 0
 
 enum { EMPTY, wP, wN, wB, wR, wQ, wK, bP, bN, bB, bR, bQ, bK };
 enum {FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H, FILE_NONE};
@@ -64,10 +67,24 @@ typedef struct
 	int count;
 } S_MOVELIST;
 
+typedef struct {
+	u64 posKey;
+	int move;
+} S_HASHENTRY;
+
+typedef struct {
+	S_HASHENTRY *pTable;
+	int numEntries;
+	int newWrite;
+	int overWrite;
+	int hit;
+	int cut;
+} S_HASHTABLE;
+
 #define FROMSQ(m) ((m) & 0x7F)				// int move: from square
 #define TOSQ(m) (((m) >> 7) & 0x7F)			// int move: to square
-#define CAPTURED(m) (((m) >> 14) & 0xF)		// captured peice
-#define PROMOTED(m) (((m) >> 20) & 0xF)		// promoted peice
+#define CAPTURED(m) (((m) >> 14) & 0xF)		// get captured peice from
+#define PROMOTED(m) (((m) >> 20) & 0xF)		// get promoted peice from move
 #define ENPASSANT_F (0x40000)				// en passant flag
 #define PAWNSTART_F (0x80000)				// pawn start flag
 #define CASTLE_F (0x1000000)				// castle flag
@@ -79,6 +96,7 @@ typedef struct {
 	int validCastles;
 	int enPas;
 	int fiftyMove;
+	int castlePerm;
 	u64 posKey;
 } S_UNDO;
 
@@ -106,6 +124,8 @@ typedef struct {
 									// 10 is the max number for pieces of one type
 									// e.g setting first pawn to E1: pList[wP][0] = E1;
 									// Can loop using pList[wP][i] until it equals NO_SQUARE
+
+	S_HASHTABLE PvTable[1];
 
 } S_BOARD;
 
@@ -172,6 +192,7 @@ extern u64 generatePosKey(const S_BOARD *pos);
 extern int SqAttacked(const int sq, const int side, const S_BOARD* pos);
 extern char *printMove(const int move);
 extern char *printSquare(const int sq);
+extern int parseMove(char *ptrChar, S_BOARD *pos);
 //void UpdateMaterial(S_BOARD *pos);
 //void MirrorBoard(S_BOARD *pos);
 //void PrintPieceLists(const S_BOARD *pos);
@@ -185,12 +206,17 @@ extern int PieceValid(const int pce);
 extern void printMoveList(const S_MOVELIST *list);
 
 extern void generateAllMoves(const S_BOARD *pos, S_MOVELIST *list);
-//extern void addQuietMove(const S_BOARD *pos, int move, S_MOVELIST *list);
-//extern void addCaptureMove(const S_BOARD *pos, int move, S_MOVELIST *list);
-//extern void addEnPassantMove(const S_BOARD *pos, int move, S_MOVELIST *list);
-//extern void addWhitePawnCapMove(const S_BOARD *pos, const int from, const int to, const int cap, S_MOVELIST *list);
-//extern void addWhitePawnMove(const S_BOARD *pos, const int from, const int to, S_MOVELIST *list);
-//extern void addBlackPawnCapMove(const S_BOARD *pos, const int from, const int to, const int cap, S_MOVELIST *list);
+
+extern int makeMove(S_BOARD *pos, int move);
+extern void takeMove(S_BOARD *pos);
+
+extern void perftTest(int depth, S_BOARD *pos);
+extern int GetTimeMs();
+
+extern void InitHashTable(S_HASHTABLE *table, const int MB);
+
+//extern void searchPosition(S_BOARD *pos, S_SEARCHINFO *info);
+
 
 
 #endif

@@ -58,3 +58,53 @@ void printMoveList(const S_MOVELIST *list)
 	}
 	printf("MoveList Total %d Moves:\n\n", list->count);
 }	
+
+
+int parseMove(char *ptrChar, S_BOARD *pos) {
+	
+	ASSERT(checkBoard(pos));
+	// ptrChar example: a2a4
+	// ptrChar promotion example: e7e8q
+	if (ptrChar[1] > '8' || ptrChar[1] < '1') return NO_MOVE;
+	if (ptrChar[3] > '8' || ptrChar[3] < '1') return NO_MOVE;
+	if (ptrChar[0] > 'h' || ptrChar[0] < 'a') return NO_MOVE;
+	if (ptrChar[2] > 'h' || ptrChar[2] < 'a') return NO_MOVE;
+	
+	int from = FR_TO_SQ(ptrChar[0] - 'a', ptrChar[1] - '1');
+	int to = FR_TO_SQ(ptrChar[2] - 'a', ptrChar[3] - '1');
+	
+	ASSERT(SqOnBoard(from) && SqOnBoard(to));
+	
+	S_MOVELIST list[1];
+	generateAllMoves(pos, list);
+	
+	int MoveNum = 0;
+	int move = NO_MOVE;
+	int PromPce = EMPTY;
+	int found = FALSE;
+	
+	for (MoveNum = 0; MoveNum < list->count; ++MoveNum) {
+		move = list->moves[MoveNum].move;
+		if (FROMSQ(move) == from && TOSQ(move) == to) {
+			PromPce = PROMOTED(move);
+			if (PromPce != EMPTY) {
+				if (isRookQueen[PromPce] && !isBishopQueen[PromPce] && ptrChar[4] == 'r') {
+					return move;
+				}
+				else if (isBishopQueen[PromPce] && !isRookQueen[PromPce] && ptrChar[4] == 'b') {
+					return move;
+				}
+				else if (isKnight[PromPce] && ptrChar[4] == 'n') {
+					return move;
+				}
+				else if (isPawn[PromPce] && ptrChar[4] == 'q') {
+					return move;
+				}
+				continue;
+			}
+			return move;
+		}
+		}
+	
+	return NO_MOVE;
+}

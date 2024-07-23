@@ -27,12 +27,17 @@
     <ClCompile Include="init.cpp" />
     <ClCompile Include="io.cpp" />
     <ClCompile Include="itchy.cpp" />
+    <ClCompile Include="makeMove.cpp" />
     <ClCompile Include="moveGen.cpp" />
+    <ClCompile Include="perft.cpp" />
     <ClCompile Include="pig.cpp" />
     <ClCompile Include="validate.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="definitions.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="perftsuite.epd" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

@@ -24,7 +24,7 @@ const int CastlePerm[120] = {
 static void ClearPiece(const int sq, S_BOARD *pos) {
 
 	ASSERT(SqOnBoard(sq));
-	ASSERT(CheckBoard(pos));
+	ASSERT(checkBoard(pos));
 	
     int pce = pos->pieces[sq];
 	
@@ -50,7 +50,7 @@ static void ClearPiece(const int sq, S_BOARD *pos) {
 		}
 	} else {
 		CLRBIT(pos->pawns[col],SQ64(sq));
-		CLRBIT(pos->pawns[BOTH],SQ64(sq));
+		CLRBIT(pos->pawns[BOTH_COLORS],SQ64(sq));
 	}
 
 	// pos->pieceCount[wP] == 5, loop 0 to 4
@@ -98,7 +98,7 @@ static void AddPiece(const int sq, S_BOARD *pos, const int pce) {
 		}
 	} else {
 		SETBIT(pos->pawns[col],SQ64(sq));
-		SETBIT(pos->pawns[BOTH],SQ64(sq));
+		SETBIT(pos->pawns[BOTH_COLORS],SQ64(sq));
 	}
 	
 	pos->material[col] += pieceValue[pce];
@@ -129,9 +129,9 @@ static void MovePiece(const int from, const int to, S_BOARD *pos) {
 	
 	if(!isPieceMid[pce]) {
 		CLRBIT(pos->pawns[col],SQ64(from));
-		CLRBIT(pos->pawns[BOTH],SQ64(from));
+		CLRBIT(pos->pawns[BOTH_COLORS],SQ64(from));
 		SETBIT(pos->pawns[col],SQ64(to));
-		SETBIT(pos->pawns[BOTH],SQ64(to));		
+		SETBIT(pos->pawns[BOTH_COLORS],SQ64(to));		
 	}    
 	
 	for(index = 0; index < pos->pieceCount[pce]; ++index) {
@@ -146,9 +146,9 @@ static void MovePiece(const int from, const int to, S_BOARD *pos) {
 	ASSERT(t_PieceNum);
 }
 
-int MakeMove(S_BOARD *pos, int move) {
+int makeMove(S_BOARD *pos, int move) {
 
-	ASSERT(CheckBoard(pos));
+	ASSERT(checkBoard(pos));
 	
 	int from = FROMSQ(move);
     int to = TOSQ(move);
@@ -158,8 +158,8 @@ int MakeMove(S_BOARD *pos, int move) {
     ASSERT(SqOnBoard(to));
     ASSERT(SideValid(side));
     ASSERT(PieceValid(pos->pieces[from]));
-	ASSERT(pos->hisPly >= 0 && pos->hisPly < MAXGAMEMOVES);
-	ASSERT(pos->ply >= 0 && pos->ply < MAXDEPTH);
+	ASSERT(pos->hisPly >= 0 && pos->hisPly < MAX_GAME_MOVES);
+	ASSERT(pos->ply >= 0 && pos->ply < MAX_DEPTH);
 	
 	pos->history[pos->hisPly].posKey = pos->posKey; // Store hash key of current game
 	
@@ -197,7 +197,7 @@ int MakeMove(S_BOARD *pos, int move) {
 
     pos->castlePerm &= CastlePerm[from];	// Adjust castling permissions
     pos->castlePerm &= CastlePerm[to];
-    pos->enPas = NO_SQ;						// Reset en passant square
+    pos->enPas = SQUARE_NONE;				// Reset en passant square
 
 	HASH_CA;	// Hash in castling permissions
 	
@@ -213,18 +213,22 @@ int MakeMove(S_BOARD *pos, int move) {
 	pos->hisPly++;
 	pos->ply++;
 	
-	ASSERT(pos->hisPly >= 0 && pos->hisPly < MAXGAMEMOVES);
-	ASSERT(pos->ply >= 0 && pos->ply < MAXDEPTH);
+	ASSERT(pos->hisPly >= 0 && pos->hisPly < MAX_GAME_MOVES);
+	ASSERT(pos->ply >= 0 && pos->ply < MAX_DEPTH);
 	
 	if(isPawn[pos->pieces[from]]) {
         pos->fiftyMove = 0;
         if(move & PAWNSTART_F) {
             if(side==WHITE) {
                 pos->enPas=from+10;						// Add the invisible pawn behind the white pawn (on rank 3)
-                ASSERT(RanksBrd[pos->enPas]==RANK_3);
+				if (rankArray[pos->enPas]!=RANK_3){
+					printf("enPas: %d rankArray: %d\n", SQ64(pos->enPas), rankArray[pos->enPas]);
+					printf("Color: %d From: %d To: %d\n", side, SQ64(from), SQ64(to));
+				}
+                ASSERT(rankArray[pos->enPas]==RANK_3);
             } else {
                 pos->enPas=from-10;						// Add the invisible pawn behind the black pawn (on rank 6)
-                ASSERT(RanksBrd[pos->enPas]==RANK_6);
+                ASSERT(rankArray[pos->enPas]==RANK_6);
             }
             HASH_EP;
         }
@@ -246,11 +250,11 @@ int MakeMove(S_BOARD *pos, int move) {
 	pos->side ^= 1;	// Switch side using XOR
     HASH_SIDE;
 
-    ASSERT(CheckBoard(pos));
+    ASSERT(checkBoard(pos));
 		
 	if(SqAttacked(pos->kingSquare[side], pos->side, pos))  { // side != pos->side, because MovePiece was called. 
 															 //	If king attacked by the next move, take back the move
-        TakeMove(pos);
+        takeMove(pos);
         return FALSE;
     }
 	
@@ -258,15 +262,15 @@ int MakeMove(S_BOARD *pos, int move) {
 	
 }
 
-void TakeMove(S_BOARD *pos) {
+void takeMove(S_BOARD *pos) {
 	
-	ASSERT(CheckBoard(pos));
+	ASSERT(checkBoard(pos));
 	
 	pos->hisPly--;
     pos->ply--;
 	
-	ASSERT(pos->hisPly >= 0 && pos->hisPly < MAXGAMEMOVES);
-	ASSERT(pos->ply >= 0 && pos->ply < MAXDEPTH);
+	ASSERT(pos->hisPly >= 0 && pos->hisPly < MAX_GAME_MOVES);
+	ASSERT(pos->ply >= 0 && pos->ply < MAX_DEPTH);
 	
     int move = pos->history[pos->hisPly].move;
     int from = FROMSQ(move);// Square to move back to
@@ -306,8 +310,8 @@ void TakeMove(S_BOARD *pos) {
 	
 	MovePiece(to, from, pos);
 	
-	if(PieceKing[pos->pieces[from]]) {
-        pos->KingSq[pos->side] = from;
+	if(isKing[pos->pieces[from]]) {
+        pos->kingSquare[pos->side] = from;
     }
 	
 	int captured = CAPTURED(move);
@@ -317,12 +321,12 @@ void TakeMove(S_BOARD *pos) {
     }
 	
 	if(PROMOTED(move) != EMPTY)   {
-        ASSERT(PieceValid(PROMOTED(move)) && !PiecePawn[PROMOTED(move)]);
+        ASSERT(PieceValid(PROMOTED(move)) && !isPawn[PROMOTED(move)]);
         ClearPiece(from, pos);
         AddPiece(from, pos, (pieceColor[PROMOTED(move)] == WHITE ? wP : bP));
     }
 	
-    ASSERT(CheckBoard(pos));
+    ASSERT(checkBoard(pos));
 
 }
 
