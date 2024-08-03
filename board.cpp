@@ -292,4 +292,5 @@ int checkBoard(const S_BOARD* pos) {
 	ASSERT(pos->enPas == SQUARE_NONE || (rankArray[pos->enPas] == RANK_6 && pos->side == WHITE) || (rankArray[pos->enPas] == RANK_3 && pos->side == BLACK));
 	ASSERT(pos->pieces[pos->kingSquare[WHITE]] == wK);
 	ASSERT(pos->pieces[pos->kingSquare[BLACK]] == bK);
+	return TRUE;
 }

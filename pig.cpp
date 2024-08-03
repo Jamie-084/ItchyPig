@@ -54,6 +54,7 @@ int main() {
 	parseFEN(START_FEN, board);
 	S_MOVELIST list[1];
 	generateAllMoves(board, list);
+	S_SEARCHINFO info[1];
 
 	//int MoveNum = 0; int move = 0;
 	//for (MoveNum = 0; MoveNum < list->count; ++MoveNum) {
@@ -67,6 +68,18 @@ int main() {
 	//	}
 
 	char input[6];
+	char *array[4]= {"e2e3", "e7e5", "g1f3", "b8c6"};
+	for (int i = 0; i < 4; i++) {
+		int move = parseMove(array[i], board);
+		if (move != NO_MOVE) {
+			//StorePvEntry(board, move);
+			makeMove(board, move);
+		}
+		else {
+			printf("** Move not valid **\n");
+		}
+	}
+	printBoard(board);
 	while (true) {
 			printBoard(board);
 			printf("Enter move: ");
@@ -82,7 +95,8 @@ int main() {
 			}
 			else if (input[0] == 'p') {
 				//perftTest(5, board);
-				int max = GetPvLine(5, board);
+				//takeMove(board);
+				int max = GetPvLine(4, board);
 				for (int i = 0; i < max; i++) {
 					printf("Move: %s\n", printMove(board->PvArray[i]));
 				}
@@ -97,6 +111,13 @@ int main() {
 			else if (input[0] == 'o') {
 				printBoard(board);
 			}
+			else if (input[0] == 's') {
+				info->depth = 4;
+				SearchPosition(board, info);
+			}
+
+
+
 			else {
 				int move = parseMove(input, board);
 				if (move != NO_MOVE) {
@@ -106,9 +127,6 @@ int main() {
 					printf("** Move not valid **\n");
 				}
 			}
-		}
-	{
-
 	}
 
 

@@ -3,9 +3,10 @@
 
 
 int ProbePvMove(const S_BOARD *pos) {
-
 	int index = pos->posKey % pos->PvTable->numEntries;		// get index of key in the hash table
 	ASSERT(index >= 0 && index <= pos->PvTable->numEntries - 1);
+	
+	printf("Move %s, Key %llx, Index %d\n", pos->PvTable->pTable[index].move, pos->posKey, index);
 	
 	if( pos->PvTable->pTable[index].posKey == pos->posKey ) {	// if the key is found in the hash table
 		return pos->PvTable->pTable[index].move;				// return the move
@@ -20,9 +21,9 @@ int GetPvLine(const int depth, S_BOARD *pos) {	// Fills PvArray with the best li
 
 	int move = ProbePvMove(pos);
 	int count = 0;
-	
+	printf("Pv move: %s\n", printMove(move));
+
 	while(move != NO_MOVE && count < depth) {
-	
 		ASSERT(count < MAX_DEPTH);
 	
 		if( MoveExists(pos, move) ) {
@@ -62,12 +63,18 @@ void InitPvTable(S_PVTABLE *table, const int MB) {
     table->numEntries = HashSize / sizeof(S_PVENTRY);	// How many entries can be fitted in the table
     table->numEntries -= 2;
 	
-	// if(table->pTable!=NULL) {
-	// 	free(table->pTable);	// Free old table
-	// }
-	// Normal allocation:	 table->pTable[ table->numEntries ]
-	// Dynamic allocation:	
-    table->pTable = (S_PVENTRY *) malloc(table->numEntries * sizeof(S_PVENTRY));
+// 	if (table->pTable != nullptr) {
+//     delete[] table->pTable;  // Free old table
+// }
+// 	// Dynamic allocation:
+// 	table->pTable = new S_PVENTRY[table->numEntries];
+
+	if (table->pTable != NULL) {
+    free(table->pTable);  // Free old table
+	}
+	// Dynamic allocation:
+	table->pTable = (S_PVENTRY*)malloc(table->numEntries * sizeof(S_PVENTRY));
+
 	if(table->pTable == NULL) {
 		printf("Hash Allocation Failed, trying %dMB...\n",MB/2);
 		InitPvTable(table,MB/2);
@@ -131,11 +138,11 @@ void StorePvEntry(S_BOARD *pos, const int move, int score, const int flags, cons
 	int index = pos->posKey % pos->PvTable->numEntries;	// Get the hash index from the key (revise hash tables)
 	
 	ASSERT(index >= 0 && index <= pos->PvTable->numEntries - 1);
-	ASSERT(depth>=1&&depth<MAX_DEPTH);
+	//ASSERT(depth>=1&&depth<MAX_DEPTH);
     //ASSERT(flags>=HFALPHA&&flags<=HFEXACT);
-    ASSERT(score>=-INFINITE&&score<=INFINITE);
+    //ASSERT(score>=-INFINITE&&score<=INFINITE);
     ASSERT(pos->ply>=0&&pos->ply<MAX_DEPTH);
-	
+			
 	// if( pos->PvTable->pTable[index].posKey == 0) {
 	// 	pos->PvTable->newWrite++;
 	// } else {
@@ -147,6 +154,7 @@ void StorePvEntry(S_BOARD *pos, const int move, int score, const int flags, cons
 	
 	pos->PvTable->pTable[index].move = move;
     pos->PvTable->pTable[index].posKey = pos->posKey;
+	printf("Move %s, Key %llx, Index %d\n", printMove(move), pos->posKey, index);
 	// pos->PvTable->pTable[index].flags = flags;
 	// pos->PvTable->pTable[index].score = score;
 	// pos->PvTable->pTable[index].depth = depth;

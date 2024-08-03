@@ -45,6 +45,8 @@ enum {
 	A8 = 91, B8, C8, D8, E8, F8, G8, H8, SQUARE_NONE, OFFBOARD // SQUARE_NONE: 99, OFFBOARD: 100
 };
 enum { FALSE, TRUE };
+enum {  HFNONE, HFALPHA, HFBETA, HFEXACT}; // hash flag
+enum { UCIMODE, XBOARDMODE, CONSOLEMODE }; // game mode
 enum { WK_CASTLE = 1, WQ_CASTLE = 2, BK_CASTLE = 4, BQ_CASTLE = 8 };// 1 0 0 1 Means white can castle kingside and black can castle queenside
 
 typedef struct {
@@ -108,8 +110,8 @@ typedef struct {
 	int enPas;						// The square where the 'invisible' pawn is
 	int fiftyMove;					// 50 move rule
 	int castlePerm;					// castle permissions
-	int ply;						// half moves
-	int hisPly;						// 
+	int ply;						// half moves played in current search
+	int hisPly;						// half moves played in total
 	u64 posKey;						// hash key for each unique position
 	//	See data.cpp:
 	int pieceCount[13];				// number of pieces (pceNum) { 0, 8, 2, 2, 2, 1, 1, 8, 2, 2, 2, 1, 1 };
@@ -128,9 +130,27 @@ typedef struct {
 	S_PVTABLE PvTable[1];
 	int PvArray[MAX_DEPTH];
 
+	int searchHistory[13][BOARD_ARRAY_SIZE];	// history of moves in search tree
+	int searchKillers[2][MAX_DEPTH];			// history of moves that caused a beta cut-off, two non-capturing moves
+
 } S_BOARD;
 
+typedef struct {
+	int starttime;
+	int stoptime;
+	int depth;
+	int timeset;
+	int movestogo;
+	long nodes;	// count of all posistions visited in tree
 
+	int quit;
+	int stopped;
+	float fh;	// fail high
+	float fhf;  // fail high first
+	int nullCut;
+	int GAME_MODE;
+	int POST_THINKING;
+} S_SEARCHINFO;
 
 // MACROS
 #define FR_TO_SQ(f, r) ( (21 + (f) ) + ( (r) * 10 ) ) // converts file and rank to index of 120-array square
@@ -144,6 +164,7 @@ typedef struct {
 #define isRQ(p) (isRookQueen[(p)])					// check if piece is rook or queen
 #define isKn(p) (isKnight[(p)])						// check if piece is knight
 #define isKi(p) (isKing[(p)])						// check if piece is king
+#define MIRROR64(sq) (Mirror64[(sq)])				// mirror the board (64-square)
 
 // GLOBALS
 extern int Sq120ToSq64[BOARD_ARRAY_SIZE];	// 120 element array to 64 element array
@@ -176,6 +197,9 @@ extern int isKing[13];
 extern int isRookQueen[13];
 extern int isBishopQueen[13];
 extern int isSliding[13]; // Queen, Rook, Bishop
+extern int Mirror64[64];
+
+// FUNCTIONS
 
 // init.cpp
 extern void AllInit();
@@ -218,18 +242,23 @@ extern void perftTest(int depth, S_BOARD *pos);
 
 // search.cpp
 extern int GetTimeMs();
+void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info);
 
 // pvTable.cpp
 extern void InitPvTable(S_PVTABLE *table, const int MB);
-extern void ClearPPvTable(S_PVTABLE *table);
+extern void ClearPvTable(S_PVTABLE *table);
 extern int ProbePvMove(const S_BOARD *pos);
-extern int GetPvLine(const int depth, S_BOARD *pos);
+extern int GetPvLine(const int depth, S_BOARD *pos);	// get a list of moves that lead to the best move
+extern void StorePvEntry(S_BOARD *pos, const int move, int score, const int flags, const int depth);
 
 // board.cpp
 extern int checkBoard(const S_BOARD *pos);
 extern u64 generatePosKey(const S_BOARD *pos);
 extern int SqAttacked(const int sq, const int side, const S_BOARD* pos);
 extern int parseMove(char *ptrChar, S_BOARD *pos);
+
+// evaluate.cpp
+extern int EvalPosition(const S_BOARD *pos);
 
 // hashkeys.cpp
 // (No functions listed in the provided code snippet)
