@@ -182,7 +182,7 @@
 //	int Score = -INFINITE;
 //	int PvMove = NOMOVE;
 //
-//	if( ProbeHashEntry(pos, &PvMove, &Score, alpha, beta, depth) == TRUE ) {
+//	if( ProbePvEntry(pos, &PvMove, &Score, alpha, beta, depth) == TRUE ) {
 //		pos->HashTable->cut++;
 //		return Score;
 //	}
@@ -253,7 +253,7 @@
 //						pos->searchKillers[0][pos->ply] = list->moves[MoveNum].move;
 //					}
 //
-//					StoreHashEntry(pos, BestMove, beta, HFBETA, depth);
+//					StorePvEntry(pos, BestMove, beta, HFBETA, depth);
 //
 //					return beta;
 //				}
@@ -277,9 +277,9 @@
 //	ASSERT(alpha>=OldAlpha);
 //
 //	if(alpha != OldAlpha) {
-//		StoreHashEntry(pos, BestMove, BestScore, HFEXACT, depth);
+//		StorePvEntry(pos, BestMove, BestScore, HFEXACT, depth);
 //	} else {
-//		StoreHashEntry(pos, BestMove, alpha, HFALPHA, depth);
+//		StorePvEntry(pos, BestMove, alpha, HFALPHA, depth);
 //	}
 //
 //	return alpha;

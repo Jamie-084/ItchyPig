@@ -2,18 +2,17 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define DEBUG
 #ifndef DEBUG
 #define ASSERT(n)
 #else
 #define ASSERT(n) \
 if(!(n)) { \
-printf("%s - Failed", #n); \
-printf("On %s ", __DATE__); \
-printf("At %s ", __TIME__); \
-printf("In File %s ", __FILE__); \
-printf("At Line %d\n", __LINE__); \
-exit(1); }
+printf("%s - Failed",#n); \
+printf("On %s ",__DATE__); \
+printf("At %s ",__TIME__); \
+printf("In File %s ",__FILE__); \
+printf("At Line %d\n",__LINE__); \
+exit(1);}
 #endif
 // ASSERT(1 == 5) will print the error message and exit the program
 
@@ -29,6 +28,7 @@ typedef unsigned long long u64; // 64-bit unsigned integer
 #define START_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
 #define NO_MOVE 0
+#define INFINITE 30000
 
 enum { EMPTY, wP, wN, wB, wR, wQ, wK, bP, bN, bB, bR, bQ, bK };
 enum {FILE_A, FILE_B, FILE_C, FILE_D, FILE_E, FILE_F, FILE_G, FILE_H, FILE_NONE};
@@ -70,16 +70,16 @@ typedef struct
 typedef struct {
 	u64 posKey;
 	int move;
-} S_HASHENTRY;
+} S_PVENTRY;
 
 typedef struct {
-	S_HASHENTRY *pTable;
+	S_PVENTRY *pTable;
 	int numEntries;
 	int newWrite;
 	int overWrite;
 	int hit;
 	int cut;
-} S_HASHTABLE;
+} S_PVTABLE;
 
 #define FROMSQ(m) ((m) & 0x7F)				// int move: from square
 #define TOSQ(m) (((m) >> 7) & 0x7F)			// int move: to square
@@ -125,7 +125,8 @@ typedef struct {
 									// e.g setting first pawn to E1: pList[wP][0] = E1;
 									// Can loop using pList[wP][i] until it equals NO_SQUARE
 
-	S_HASHTABLE PvTable[1];
+	S_PVTABLE PvTable[1];
+	int PvArray[MAX_DEPTH];
 
 } S_BOARD;
 
@@ -176,47 +177,65 @@ extern int isRookQueen[13];
 extern int isBishopQueen[13];
 extern int isSliding[13]; // Queen, Rook, Bishop
 
-// FUNCTIONS			- CHECK FUNCTION NAMES
+// init.cpp
 extern void AllInit();
 void InitSq120To64();
 void InitBitMasks();
+
+// bitBoard.cpp
+extern void printBitBoard(u64 bitboard);
 int popBit(u64 *bb);
 int countBits(u64 b);
-extern void printBitBoard(u64 bitboard);
+
+// data.cpp
 extern void updateListsMaterial(S_BOARD *pos);
 extern void resetBoard(S_BOARD *pos);
+
+// io.cpp
 extern int parseFEN(const char *fen, S_BOARD *pos);
 extern void printBoard(const S_BOARD *pos);
-extern int checkBoard(const S_BOARD *pos);
-extern u64 generatePosKey(const S_BOARD *pos);
-extern int SqAttacked(const int sq, const int side, const S_BOARD* pos);
 extern char *printMove(const int move);
 extern char *printSquare(const int sq);
-extern int parseMove(char *ptrChar, S_BOARD *pos);
-//void UpdateMaterial(S_BOARD *pos);
-//void MirrorBoard(S_BOARD *pos);
-//void PrintPieceLists(const S_BOARD *pos);
+extern void printMoveList(const S_MOVELIST *list);
 
+// validate.cpp
 extern int SqOnBoard(const int sq);
 extern int SideValid(const int side);
 extern int FileRankValid(const int fr);
 extern int PieceValidEmpty(const int pce);
 extern int PieceValid(const int pce);
 
-extern void printMoveList(const S_MOVELIST *list);
-
+// moveGen.cpp
 extern void generateAllMoves(const S_BOARD *pos, S_MOVELIST *list);
 
+// makeMove.cpp
 extern int makeMove(S_BOARD *pos, int move);
 extern void takeMove(S_BOARD *pos);
+extern int MoveExists(S_BOARD *pos, const int move);
 
+// perft.cpp
 extern void perftTest(int depth, S_BOARD *pos);
+
+// search.cpp
 extern int GetTimeMs();
 
-extern void InitHashTable(S_HASHTABLE *table, const int MB);
+// pvTable.cpp
+extern void InitPvTable(S_PVTABLE *table, const int MB);
+extern void ClearPPvTable(S_PVTABLE *table);
+extern int ProbePvMove(const S_BOARD *pos);
+extern int GetPvLine(const int depth, S_BOARD *pos);
 
-//extern void searchPosition(S_BOARD *pos, S_SEARCHINFO *info);
+// board.cpp
+extern int checkBoard(const S_BOARD *pos);
+extern u64 generatePosKey(const S_BOARD *pos);
+extern int SqAttacked(const int sq, const int side, const S_BOARD* pos);
+extern int parseMove(char *ptrChar, S_BOARD *pos);
 
+// hashkeys.cpp
+// (No functions listed in the provided code snippet)
+
+// attack.cpp
+// (No functions listed in the provided code snippet)
 
 
 #endif

@@ -17,27 +17,26 @@ void ShowSqAtBySide(const int side, const S_BOARD* pos) {
 	int sq = 0;
 	int piece = 0;
 
-	std::cout << "\n\n\n";
-	for (rank = RANK_8; rank >= RANK_1; rank--) {
-		for (file = FILE_A; file <= FILE_H; file++) {
-			sq = FR_TO_SQ(file, rank);
-			piece = pos->pieces[sq];
-			/*if (pieceColor[piece] == side) {
-				std::cout << " " << pieceColor[piece];
-			}
-			else {
-				std::cout << " .";
-			}*/
-			if (SqAttacked(sq, side, pos)) {
-				std::cout << " X";
-			}
-			else {
-				std::cout << " -";
-			}
-		}
-		std::cout << std::endl;
-	}
-	std::cout << std::endl;
+	printf("\n\n\n");
+    for (rank = RANK_8; rank >= RANK_1; rank--) {
+        for (file = FILE_A; file <= FILE_H; file++) {
+            sq = FR_TO_SQ(file, rank);
+            piece = pos->pieces[sq];
+            /*if (pieceColor[piece] == side) {
+                printf(" %d", pieceColor[piece]);
+            }
+            else {
+                printf(" .");
+            }*/
+            if (SqAttacked(sq, side, pos)) {
+                printf(" X");
+            } else {
+                printf(" -");
+            }
+        }
+        printf("\n");
+    }
+    printf("\n");
 }
 
 int main() {
@@ -55,10 +54,6 @@ int main() {
 	parseFEN(START_FEN, board);
 	S_MOVELIST list[1];
 	generateAllMoves(board, list);
-	printBoard(board);
-	printMoveList(list);
-	perftTest(4, board);
-	return 0;
 
 	//int MoveNum = 0; int move = 0;
 	//for (MoveNum = 0; MoveNum < list->count; ++MoveNum) {
@@ -69,7 +64,6 @@ int main() {
 	//		takeMove(board);
 	//		printf("Taken Move: > %s\n", printMove(move));
 	//		printBoard(board);
-
 	//	}
 
 	char input[6];
@@ -87,7 +81,12 @@ int main() {
 				parseFEN(START_FEN, board);
 			}
 			else if (input[0] == 'p') {
-				perftTest(5, board);
+				//perftTest(5, board);
+				int max = GetPvLine(5, board);
+				for (int i = 0; i < max; i++) {
+					printf("Move: %s\n", printMove(board->PvArray[i]));
+				}
+				printf("\n");
 			}
 			else if (input[0] == 'l') {
 				printMoveList(list);

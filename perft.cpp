@@ -1,12 +1,31 @@
 #include "definitions.h"
 #include <stdio.h>
-#include <chrono>
+#include <time.h>
 
-int GetTimeMs(){
-    auto now = std::chrono::system_clock::now();
-    auto duration = now.time_since_epoch();
-    return std::chrono::duration_cast<std::chrono::milliseconds>(duration).count();
+#ifdef _WIN32
+#include <Windows.h>
+#else
+#include <sys/time.h>
+#endif
+
+int GetTimeMs() {
+    struct timespec spec;
+#ifdef _WIN32
+    LARGE_INTEGER frequency;
+    LARGE_INTEGER start;
+    if (!QueryPerformanceFrequency(&frequency)) {
+        return 0;
+    }
+    if (!QueryPerformanceCounter(&start)) {
+        return 0;
+    }
+    return (int)((start.QuadPart * 1000) / frequency.QuadPart);
+#else
+    clock_gettime(CLOCK_REALTIME, &spec);
+    return (spec.tv_sec * 1000) + (spec.tv_nsec / 1.0e6);
+#endif
 }
+
 
 long leafNodes;
 

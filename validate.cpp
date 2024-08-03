@@ -72,7 +72,7 @@ int PieceValid(const int pce) {
 //        while(fgets (lineIn , 1024 , file) != NULL) {
 //			info->starttime = GetTimeMs();
 //			info->stoptime = info->starttime + time;
-//			ClearHashTable(pos->HashTable);
+//			ClearPvTable(pos->HashTable);
 //            ParseFen(lineIn, pos);
 //            printf("\n%s\n",lineIn);
 //			printf("time:%d start:%d stop:%d depth:%d timeset:%d\n",
