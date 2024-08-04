@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#define DEBUG
+
 #ifndef DEBUG
 #define ASSERT(n)
 #else
@@ -231,6 +233,8 @@ extern int PieceValid(const int pce);
 
 // moveGen.cpp
 extern void generateAllMoves(const S_BOARD *pos, S_MOVELIST *list);
+extern void GenerateAllCaps(const S_BOARD *pos, S_MOVELIST *list);
+extern int InitMvvLva();
 
 // makeMove.cpp
 extern int makeMove(S_BOARD *pos, int move);
@@ -250,6 +254,7 @@ extern void ClearPvTable(S_PVTABLE *table);
 extern int ProbePvMove(const S_BOARD *pos);
 extern int GetPvLine(const int depth, S_BOARD *pos);	// get a list of moves that lead to the best move
 extern void StorePvEntry(S_BOARD *pos, const int move, int score, const int flags, const int depth);
+extern int ProbePvEntry(S_BOARD *pos, int *move, int *score, int alpha, int beta, int depth);
 
 // board.cpp
 extern int checkBoard(const S_BOARD *pos);

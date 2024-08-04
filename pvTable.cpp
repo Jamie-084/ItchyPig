@@ -6,7 +6,7 @@ int ProbePvMove(const S_BOARD *pos) {
 	int index = pos->posKey % pos->PvTable->numEntries;		// get index of key in the hash table
 	ASSERT(index >= 0 && index <= pos->PvTable->numEntries - 1);
 	
-	printf("Move %s, Key %llx, Index %d\n", pos->PvTable->pTable[index].move, pos->posKey, index);
+	//printf("Move %s, Key %llx, Index %d\n", pos->PvTable->pTable[index].move, pos->posKey, index);
 	
 	if( pos->PvTable->pTable[index].posKey == pos->posKey ) {	// if the key is found in the hash table
 		return pos->PvTable->pTable[index].move;				// return the move
@@ -21,7 +21,7 @@ int GetPvLine(const int depth, S_BOARD *pos) {	// Fills PvArray with the best li
 
 	int move = ProbePvMove(pos);
 	int count = 0;
-	printf("Pv move: %s\n", printMove(move));
+	//printf("Pv move: %s\n", printMove(move));
 
 	while(move != NO_MOVE && count < depth) {
 		ASSERT(count < MAX_DEPTH);

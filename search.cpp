@@ -12,6 +12,8 @@ static void CheckUp(S_SEARCHINFO *info) {// check if time up, or interrupt from 
 	//ReadInput(info);
 }
 
+// Goes through the rest of the valid moves and
+// swaps the best move to the front of the list
 static void PickNextMove(int moveNum, S_MOVELIST *list) {
 
 	S_MOVE temp;
@@ -41,7 +43,7 @@ static int IsRepetition(const S_BOARD *pos) {
 	// If fiftyMove is reset to zero, then a repetition is not possible (since its impossible to move a pawn back, recapture, promote, ect)
 	// Only need to check for repetistions up untill fiftyMove was reset to 0
 	for(index = pos->hisPly - pos->fiftyMove; index < pos->hisPly-1; ++index) {	
-		ASSERT(index >= 0 && index < MAXGAMEMOVES);
+		ASSERT(index >= 0 && index < MAX_GAME_MOVES);
 		if(pos->posKey == pos->history[index].posKey) {
 			return TRUE;
 		}
@@ -79,9 +81,13 @@ static void ClearForSearch(S_BOARD *pos, S_SEARCHINFO *info) { // clear search i
 	info->fhf = 0;
 }
 
+// Quiescence: imagine you have searched to depth 5, 
+// and last move you captured a pawn with your queen, and that pawn was defended. 
+// Without Q search, the engine would think you've won a pawn. 
+// This is the horizon effect. Q search resolves all captures to try to prevent this.
 static int Quiescence(int alpha, int beta, S_BOARD *pos, S_SEARCHINFO *info) { // search only captures moves, prevent horizon effect, see wiki
 
-	ASSERT(CheckBoard(pos));
+	ASSERT(checkBoard(pos));
 	ASSERT(beta>alpha);
 	if(( info->nodes & 2047 ) == 0) {
 		CheckUp(info);
@@ -110,7 +116,7 @@ static int Quiescence(int alpha, int beta, S_BOARD *pos, S_SEARCHINFO *info) { /
 	}
 
 	S_MOVELIST list[1];
-    //GenerateAllCaps(pos,list);
+    GenerateAllCaps(pos,list);
 
    int MoveNum = 0;
 	int Legal = 0;
@@ -144,14 +150,14 @@ static int Quiescence(int alpha, int beta, S_BOARD *pos, S_SEARCHINFO *info) { /
 		}
    }
 
-	ASSERT(alpha >= OldAlpha);
+	//ASSERT(alpha >= OldAlpha);
 
 	return alpha;
 }
 
 static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO *info, int DoNull) {
 
-	ASSERT(CheckBoard(pos));
+	ASSERT(checkBoard(pos));
 	ASSERT(beta>alpha);
 	ASSERT(depth>=0);
 
@@ -183,10 +189,10 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 	int Score = -INFINITE;
 	int PvMove = NO_MOVE;
 
-	// if( ProbePvEntry(pos, &PvMove, &Score, alpha, beta, depth) == TRUE ) {
-	// 	pos->PvTable->cut++;
-	// 	return Score;
-	// }
+	if( ProbePvEntry(pos, &PvMove, &Score, alpha, beta, depth) == TRUE ) {
+		pos->PvTable->cut++;
+		return Score;
+	}
 
 	// if( DoNull && !InCheck && pos->ply && (pos->bigPce[pos->side] > 0) && depth >= 4) {
 	// 	MakeNullMove(pos);
@@ -211,13 +217,14 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 	int BestMove = NO_MOVE;
 	int BestScore = -INFINITE;
 
+	PvMove = ProbePvMove(pos);
 	Score = -INFINITE;
 
 	if( PvMove != NO_MOVE) {
 		for(MoveNum = 0; MoveNum < list->count; ++MoveNum) {
+			// If pv move found, search it first
 			if( list->moves[MoveNum].move == PvMove) {
 				list->moves[MoveNum].score = 2000000;
-				//printf("Pv move found \n");
 				break;
 			}
 		}
@@ -225,7 +232,7 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 
 	for(MoveNum = 0; MoveNum < list->count; ++MoveNum) {
 
-		PickNextMove(MoveNum, list);
+		PickNextMove(MoveNum, list); // move with the highest score is moved to the front of the list
 
        if ( !makeMove(pos,list->moves[MoveNum].move))  {
            continue;
@@ -248,9 +255,9 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 					}
 					info->fh++;	//
 
-					if(!(list->moves[MoveNum].move & CAPTURE_F)) {
-						pos->searchKillers[1][pos->ply] = pos->searchKillers[0][pos->ply];
-						pos->searchKillers[0][pos->ply] = list->moves[MoveNum].move;
+					if(!(list->moves[MoveNum].move & CAPTURE_F)) { // Beta cutoff: If not a capture, then its a killer move
+						pos->searchKillers[1][pos->ply] = pos->searchKillers[0][pos->ply]; // Shuffle down old killer
+						pos->searchKillers[0][pos->ply] = list->moves[MoveNum].move;	// Store new killer
 					}
 
 					StorePvEntry(pos, BestMove, beta, HFBETA, depth);
@@ -259,9 +266,9 @@ static int AlphaBeta(int alpha, int beta, int depth, S_BOARD *pos, S_SEARCHINFO 
 				}
 				alpha = Score;
 
-				if(!(list->moves[MoveNum].move & CAPTURE_F)) {
+				if(!(list->moves[MoveNum].move & CAPTURE_F)) {	// Alpha cutoff: If not a capture, then its a history move
 					pos->searchHistory[pos->pieces[FROMSQ(BestMove)]][TOSQ(BestMove)] += depth;
-				}
+				}	// prioritize moves closer to the root (end) of the tree
 			}
 		}
    }

@@ -20,7 +20,7 @@
                 }
             ],
             "preLaunchTask": "build pig",
-            "miDebuggerPath": "C:/msys64/ucrt64/bin/gdb.exe",
+            "miDebuggerPath": "/usr/bin/gdb",
             "logging": {
                 "moduleLoad": false,
                 "trace": false

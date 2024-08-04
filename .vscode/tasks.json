@@ -2,6 +2,16 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "clean",
+            "type": "shell",
+            "command": "rm",
+            "args": [
+                "*.o",
+                "pig"
+            ],
+            "problemMatcher": []
+        },
+        {
             "label": "build pig",
             "type": "shell",
             "command": "g++",
@@ -23,8 +33,10 @@
                 "evaluate.cpp",
                 "-o",
                 "pig",
-                "-std=c++11", // Add the C++ standard you are using
-            ],  
+                "-std=c++11",
+                "-Wall",
+                "-Wextra"
+            ],
             "group": {
                 "kind": "build",
                 "isDefault": true

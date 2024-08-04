@@ -11,61 +11,15 @@
 
 // cd source\repos\ItchyPig
 
-void ShowSqAtBySide(const int side, const S_BOARD* pos) {
-	int rank = 0;
-	int file = 0;
-	int sq = 0;
-	int piece = 0;
-
-	printf("\n\n\n");
-    for (rank = RANK_8; rank >= RANK_1; rank--) {
-        for (file = FILE_A; file <= FILE_H; file++) {
-            sq = FR_TO_SQ(file, rank);
-            piece = pos->pieces[sq];
-            /*if (pieceColor[piece] == side) {
-                printf(" %d", pieceColor[piece]);
-            }
-            else {
-                printf(" .");
-            }*/
-            if (SqAttacked(sq, side, pos)) {
-                printf(" X");
-            } else {
-                printf(" -");
-            }
-        }
-        printf("\n");
-    }
-    printf("\n");
-}
-
 int main() {
 	AllInit();
 	S_BOARD board[1];
-	/*parseFEN(FEN3, board);
-	printBoard(board);
-	ASSERT(checkBoard(board));*/
-	//int move = 0;
-	//int from = A3; int to = B4; int cap = wR; int prom = bN;
-	//move = (from) | (to << 7) | (cap << 14) | (prom << 20); // see int move in definitions.h
-	//printf("from: %d to: %d cap: %d prom: %d\n", FROMSQ(move), TOSQ(move), CAPTURED(move), PROMOTED(move));
-	//printf("from: %s, to: %s, move: %s", printSquare(from), printSquare(to), printMove(move));
+	InitPvTable(board->PvTable, 1024);
 
 	parseFEN(START_FEN, board);
 	S_MOVELIST list[1];
 	generateAllMoves(board, list);
 	S_SEARCHINFO info[1];
-
-	//int MoveNum = 0; int move = 0;
-	//for (MoveNum = 0; MoveNum < list->count; ++MoveNum) {
-	//		move = list->moves[MoveNum].move;
-	//		if (!makeMove(board, move)){continue;}
-	//		printf("Move: > %s\n", printMove(move));
-	//		printBoard(board);
-	//		takeMove(board);
-	//		printf("Taken Move: > %s\n", printMove(move));
-	//		printBoard(board);
-	//	}
 
 	char input[6];
 	char *array[4]= {"e2e3", "e7e5", "g1f3", "b8c6"};
@@ -79,6 +33,7 @@ int main() {
 			printf("** Move not valid **\n");
 		}
 	}
+
 	printBoard(board);
 	while (true) {
 			printBoard(board);
@@ -116,8 +71,6 @@ int main() {
 				SearchPosition(board, info);
 			}
 
-
-
 			else {
 				int move = parseMove(input, board);
 				if (move != NO_MOVE) {
@@ -129,6 +82,7 @@ int main() {
 			}
 	}
 
+	free(board->PvTable->pTable); 
 
 
 	/*S_BOARD board[1];
@@ -140,6 +94,53 @@ int main() {
 	printf("\n");
 	ShowSqAtBySide(BLACK, board);*/
 
+	/*parseFEN(FEN3, board);
+	printBoard(board);
+	ASSERT(checkBoard(board));*/
+	//int move = 0;
+	//int from = A3; int to = B4; int cap = wR; int prom = bN;
+	//move = (from) | (to << 7) | (cap << 14) | (prom << 20); // see int move in definitions.h
+	//printf("from: %d to: %d cap: %d prom: %d\n", FROMSQ(move), TOSQ(move), CAPTURED(move), PROMOTED(move));
+	//printf("from: %s, to: %s, move: %s", printSquare(from), printSquare(to), printMove(move));
+
+	//int MoveNum = 0; int move = 0;
+	//for (MoveNum = 0; MoveNum < list->count; ++MoveNum) {
+	//		move = list->moves[MoveNum].move;
+	//		if (!makeMove(board, move)){continue;}
+	//		printf("Move: > %s\n", printMove(move));
+	//		printBoard(board);
+	//		takeMove(board);
+	//		printf("Taken Move: > %s\n", printMove(move));
+	//		printBoard(board);
+	//	}
+
+}
 
 
+void ShowSqAtBySide(const int side, const S_BOARD* pos) {
+		int rank = 0;
+	int file = 0;
+	int sq = 0;
+	int piece = 0;
+
+	printf("\n\n\n");
+    for (rank = RANK_8; rank >= RANK_1; rank--) {
+        for (file = FILE_A; file <= FILE_H; file++) {
+            sq = FR_TO_SQ(file, rank);
+            piece = pos->pieces[sq];
+            /*if (pieceColor[piece] == side) {
+                printf(" %d", pieceColor[piece]);
+            }
+            else {
+                printf(" .");
+            }*/
+            if (SqAttacked(sq, side, pos)) {
+                printf(" X");
+            } else {
+                printf(" -");
+            }
+        }
+        printf("\n");
+    }
+    printf("\n");
 }
