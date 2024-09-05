@@ -234,7 +234,7 @@ extern int PieceValid(const int pce);
 // moveGen.cpp
 extern void generateAllMoves(const S_BOARD *pos, S_MOVELIST *list);
 extern void GenerateAllCaps(const S_BOARD *pos, S_MOVELIST *list);
-extern int InitMvvLva();
+extern void InitMvvLva();
 
 // makeMove.cpp
 extern int makeMove(S_BOARD *pos, int move);
@@ -246,7 +246,7 @@ extern void perftTest(int depth, S_BOARD *pos);
 
 // search.cpp
 extern int GetTimeMs();
-void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info);
+extern void SearchPosition(S_BOARD *pos, S_SEARCHINFO *info);
 
 // pvTable.cpp
 extern void InitPvTable(S_PVTABLE *table, const int MB);

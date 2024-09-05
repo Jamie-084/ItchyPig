@@ -47,7 +47,7 @@ HistoryScore
 const int VictimScore[13] = { 0, 100, 200, 300, 400, 500, 600, 100, 200, 300, 400, 500, 600 };
 static int MvvLvaScores[13][13];
 
-int InitMvvLva() {
+void InitMvvLva() {
 	int Attacker;
 	int Victim;
 	for(Attacker = wP; Attacker <= bK; ++Attacker) {

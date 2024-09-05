@@ -58,24 +58,21 @@ void ClearPvTable(S_PVTABLE *table) {
 }
 
 void InitPvTable(S_PVTABLE *table, const int MB) {  
-	
 	int HashSize = 0x100000 * MB;
     table->numEntries = HashSize / sizeof(S_PVENTRY);	// How many entries can be fitted in the table
     table->numEntries -= 2;
 	
-// 	if (table->pTable != nullptr) {
-//     delete[] table->pTable;  // Free old table
-// }
-// 	// Dynamic allocation:
-// 	table->pTable = new S_PVENTRY[table->numEntries];
+	// if (table->pTable != nullptr) {
+    // delete[] table->pTable;  // Free old table
+	// }
+	table->pTable = new S_PVENTRY[table->numEntries];
 
-	if (table->pTable != NULL) {
-    free(table->pTable);  // Free old table
-	}
-	// Dynamic allocation:
-	table->pTable = (S_PVENTRY*)malloc(table->numEntries * sizeof(S_PVENTRY));
+	// if (table->pTable != NULL) {
+    // free(table->pTable);  // Free old table
+	// }
+	// table->pTable = (S_PVENTRY*)malloc(table->numEntries * sizeof(S_PVENTRY));
 
-	if(table->pTable == NULL) {
+	if(table->pTable == NULL || table->pTable == nullptr) {
 		printf("Hash Allocation Failed, trying %dMB...\n",MB/2);
 		InitPvTable(table,MB/2);
 	} else {

@@ -14,4 +14,5 @@ all:
 	perft.cpp \
 	search.cpp \
 	pvTable.cpp \
+	evaluate.cpp \
 	-o pig

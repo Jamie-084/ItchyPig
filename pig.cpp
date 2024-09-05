@@ -1,4 +1,4 @@
-#include <iostream>
+//#include <iostream>
 #include <string>
 #include "definitions.h"
 
@@ -12,31 +12,31 @@
 // cd source\repos\ItchyPig
 
 int main() {
+	printf("\nBuild complete\n");
 	AllInit();
 	S_BOARD board[1];
 	InitPvTable(board->PvTable, 1024);
-
 	parseFEN(START_FEN, board);
 	S_MOVELIST list[1];
 	generateAllMoves(board, list);
 	S_SEARCHINFO info[1];
-
 	char input[6];
-	char *array[4]= {"e2e3", "e7e5", "g1f3", "b8c6"};
-	for (int i = 0; i < 4; i++) {
-		int move = parseMove(array[i], board);
-		if (move != NO_MOVE) {
-			//StorePvEntry(board, move);
-			makeMove(board, move);
-		}
-		else {
-			printf("** Move not valid **\n");
-		}
-	}
+	// char *array[4]= {"e2e3", "e7e5", "g1f3", "b8c6"};
+	// for (int i = 0; i < 4; i++) {
+	// 	int move = parseMove(array[i], board);
+	// 	if (move != NO_MOVE) {
+	// 		//StorePvEntry(board, move);
+	// 		makeMove(board, move);
+	// 	}
+	// 	else {
+	// 		printf("** Move not valid **\n");
+	// 	}
+	// }
 
 	printBoard(board);
 	while (true) {
 			printBoard(board);
+			printf("Score: %d\n", EvalPosition(board));
 			printf("Enter move: ");
 			fgets(input, 6, stdin);
 			if (input[0] == 'q') {
