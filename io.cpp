@@ -52,7 +52,7 @@ void printMoveList(const S_MOVELIST *list)
 
 	for (index = 0; index < list->count; ++index)
 	{
-				move = list->moves[index].move;
+		move = list->moves[index].move;
 		score = list->moves[index].score;
 		printf("Move:%d > %s (score:%d)\n", index + 1, printMove(move), score);
 	}

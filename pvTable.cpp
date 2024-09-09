@@ -151,7 +151,7 @@ void StorePvEntry(S_BOARD *pos, const int move, int score, const int flags, cons
 	
 	pos->PvTable->pTable[index].move = move;
     pos->PvTable->pTable[index].posKey = pos->posKey;
-	printf("Move %s, Key %llx, Index %d\n", printMove(move), pos->posKey, index);
+	//printf("Move %s, Key %llx, Index %d\n", printMove(move), pos->posKey, index);
 	// pos->PvTable->pTable[index].flags = flags;
 	// pos->PvTable->pTable[index].score = score;
 	// pos->PvTable->pTable[index].depth = depth;

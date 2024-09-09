@@ -9,18 +9,28 @@
 #define FEN_PAWNMOVES "rnbqkb1r/pp1p1pPp/8/2p1pP2/1P1P4/3P3P/P1P1P3/RNBQKBNR w KQkq e6 0 1"
 #define FEN_CASTLING "r3k2r/8/8/8/8/8/8/R3K2R b KQkq - 0 1" 
 
+#define ENDGAME_FEN "8/5q2/8/8/1K6/3R4/2R5/7k w - - 0 1"
+
 // cd source\repos\ItchyPig
 
 int main() {
 	printf("\nBuild complete\n");
-	AllInit();
+	
 	S_BOARD board[1];
-	InitPvTable(board->PvTable, 1024);
-	parseFEN(START_FEN, board);
 	S_MOVELIST list[1];
-	generateAllMoves(board, list);
 	S_SEARCHINFO info[1];
+	
+	AllInit();
+	InitPvTable(board->PvTable, 1024);
+	parseFEN(ENDGAME_FEN, board);
+	generateAllMoves(board, list);
+	
+	Console_Loop(board, info);
+
+	info->depth = 4;
+	info->GAME_MODE = 0;
 	char input[6];
+	
 	// char *array[4]= {"e2e3", "e7e5", "g1f3", "b8c6"};
 	// for (int i = 0; i < 4; i++) {
 	// 	int move = parseMove(array[i], board);
@@ -33,10 +43,18 @@ int main() {
 	// 	}
 	// }
 
-	printBoard(board);
+	//printBoard(board);
 	while (true) {
-			printBoard(board);
-			printf("Score: %d\n", EvalPosition(board));
+		SearchPosition(board, info);
+		printf("\n\n\n*******\t%d\t*******\n\n", board->side);
+		printBoard(board);
+		printf("Score: %d\n", EvalPosition(board));
+		printf("Final best move: %s\n", printMove(board->PvArray[0]));
+		if (board->side){
+			info->depth = 4;
+			makeMove(board, board->PvArray[0]);
+			getchar();
+		} else {
 			printf("Enter move: ");
 			fgets(input, 6, stdin);
 			if (input[0] == 'q') {
@@ -80,6 +98,7 @@ int main() {
 					printf("** Move not valid **\n");
 				}
 			}
+		}
 	}
 
 	free(board->PvTable->pTable); 

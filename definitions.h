@@ -27,6 +27,7 @@ typedef unsigned long long u64; // 64-bit unsigned integer
 #define MAX_GAME_MOVES 2048
 #define MAX_POSITION_MOVES 256
 #define MAX_DEPTH 64
+#define MAX_HASH 0x100000 * 1024
 #define START_FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
 
 #define NO_MOVE 0
@@ -150,7 +151,7 @@ typedef struct {
 	float fh;	// fail high
 	float fhf;  // fail high first
 	int nullCut;
-	int GAME_MODE;
+	int GAME_MODE;	//	
 	int POST_THINKING;
 } S_SEARCHINFO;
 
@@ -230,6 +231,7 @@ extern int SideValid(const int side);
 extern int FileRankValid(const int fr);
 extern int PieceValidEmpty(const int pce);
 extern int PieceValid(const int pce);
+extern void MirrorEvalTest(S_BOARD *pos);
 
 // moveGen.cpp
 extern void generateAllMoves(const S_BOARD *pos, S_MOVELIST *list);
@@ -261,6 +263,7 @@ extern int checkBoard(const S_BOARD *pos);
 extern u64 generatePosKey(const S_BOARD *pos);
 extern int SqAttacked(const int sq, const int side, const S_BOARD* pos);
 extern int parseMove(char *ptrChar, S_BOARD *pos);
+extern void mirrorBoard(S_BOARD *pos);
 
 // evaluate.cpp
 extern int EvalPosition(const S_BOARD *pos);
@@ -270,6 +273,9 @@ extern int EvalPosition(const S_BOARD *pos);
 
 // attack.cpp
 // (No functions listed in the provided code snippet)
+
+// xboard.cpp
+extern void Console_Loop(S_BOARD *pos, S_SEARCHINFO *info); 
 
 
 #endif

@@ -15,4 +15,5 @@ all:
 	search.cpp \
 	pvTable.cpp \
 	evaluate.cpp \
+	xboard.cpp \
 	-o pig

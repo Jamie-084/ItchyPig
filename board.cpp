@@ -294,3 +294,46 @@ int checkBoard(const S_BOARD* pos) {
 	ASSERT(pos->pieces[pos->kingSquare[BLACK]] == bK);
 	return TRUE;
 }
+
+void mirrorBoard(S_BOARD *pos) {
+
+    int tempPiecesArray[64];
+    int tempSide = pos->side^1;
+	int SwapPiece[13] = { EMPTY, bP, bN, bB, bR, bQ, bK, wP, wN, wB, wR, wQ, wK };
+    int tempCastlePerm = 0;
+    int tempEnPas = SQUARE_NONE;
+
+	int sq;
+	int tp;
+
+    if (pos->castlePerm & WK_CASTLE) tempCastlePerm |= BK_CASTLE;
+    if (pos->castlePerm & WQ_CASTLE) tempCastlePerm |= BQ_CASTLE;
+
+    if (pos->castlePerm & BK_CASTLE) tempCastlePerm |= WK_CASTLE;
+    if (pos->castlePerm & BQ_CASTLE) tempCastlePerm |= WQ_CASTLE;
+
+	if (pos->enPas != SQUARE_NONE)  {
+        tempEnPas = SQ120(Mirror64[SQ64(pos->enPas)]);
+    }
+
+    for (sq = 0; sq < 64; sq++) {
+        tempPiecesArray[sq] = pos->pieces[SQ120(Mirror64[sq])];
+    }
+
+    resetBoard(pos);
+
+	for (sq = 0; sq < 64; sq++) {
+        tp = SwapPiece[tempPiecesArray[sq]];
+        pos->pieces[SQ120(sq)] = tp;
+    }
+
+	pos->side = tempSide;
+    pos->castlePerm = tempCastlePerm;
+    pos->enPas = tempEnPas;
+
+    pos->posKey = generatePosKey(pos);
+
+	updateListsMaterial(pos);
+
+    ASSERT(checkBoard(pos));
+}
